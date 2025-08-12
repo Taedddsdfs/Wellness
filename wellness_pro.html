@@ -1,0 +1,1395 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Wellness London - AI Health Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1d1d1f;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .main-screen.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            text-align: center;
+            padding: 0 24px;
+            max-width: 800px;
+            animation: fadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.08;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+        }
+
+        .hero-subtitle {
+            font-size: 21px;
+            font-weight: 400;
+            line-height: 1.38;
+            letter-spacing: -0.01em;
+            color: #6e6e73;
+            margin-bottom: 32px;
+        }
+
+        .start-options {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            padding: 17px 36px;
+            font-size: 17px;
+            font-weight: 500;
+            border-radius: 980px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            letter-spacing: -0.01em;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-btn.secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .start-btn.secondary:hover {
+            background: #667eea;
+            color: #fff;
+        }
+
+        /* Login/Register Modal */
+        .auth-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .auth-modal.active {
+            display: flex;
+        }
+
+        .auth-content {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: modalSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6e6e73;
+        }
+
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            font-size: 14px;
+            color: #6e6e73;
+            line-height: 1.4;
+        }
+
+        .checkbox-label a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .auth-submit {
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 12px;
+        }
+
+        .auth-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: #6e6e73;
+        }
+
+        .auth-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Emergency Banner */
+        .emergency-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #FF3B30 0%, #FF453A 100%);
+            color: #fff;
+            padding: 12px 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            z-index: 3000;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .emergency-banner.active {
+            display: flex;
+        }
+
+        .emergency-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .emergency-btn:hover {
+            background: #fff;
+            color: #FF3B30;
+        }
+
+        /* Call Screen */
+        .call-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .call-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .call-timer {
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .top-bar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .top-btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .top-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .close-button {
+            width: 32px;
+            padding: 0;
+        }
+
+        /* Health Assessment Panel */
+        .assessment-panel {
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px;
+            display: none;
+        }
+
+        .assessment-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .assessment-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+        }
+
+        .symptom-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .symptom-btn {
+            padding: 12px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            background: #fff;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .symptom-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+        .symptom-btn.selected {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-color: #667eea;
+        }
+
+        .severity-scale {
+            margin: 20px 0;
+        }
+
+        .severity-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6e6e73;
+            margin-bottom: 12px;
+        }
+
+        .severity-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #34C759 0%, #FFD60A 50%, #FF3B30 100%);
+            outline: none;
+        }
+
+        .severity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .severity-value {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-top: 8px;
+        }
+
+        /* Call Content */
+        .call-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 24px;
+            overflow: hidden;
+        }
+
+        .call-header {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .caller-name {
+            font-size: 26px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .call-status {
+            font-size: 14px;
+            color: #86868b;
+            letter-spacing: -0.01em;
+            text-align: center;
+        }
+
+        /* Human Doctor Alert */
+        .doctor-alert {
+            background: linear-gradient(135deg, #34C759, #30D158);
+            color: #fff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 0 20px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .doctor-alert.active {
+            display: flex;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .doctor-alert-text {
+            flex: 1;
+        }
+
+        .doctor-alert-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .doctor-alert-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .doctor-alert-btn {
+            background: #fff;
+            color: #34C759;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .doctor-alert-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Live Transcript */
+        .transcript-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 12px 20px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .transcript-block {
+            margin-bottom: 24px;
+            animation: blockFadeIn 0.4s ease;
+        }
+
+        @keyframes blockFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .speaker-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+            opacity: 0.6;
+        }
+
+        .speaker-label.ai {
+            color: #667eea;
+        }
+
+        .speaker-label.user {
+            color: #1d1d1f;
+        }
+
+        .speaker-label.doctor {
+            color: #34C759;
+        }
+
+        .transcript-text {
+            font-size: 17px;
+            line-height: 1.52;
+            color: #1d1d1f;
+            letter-spacing: -0.01em;
+        }
+
+        .word {
+            display: inline-block;
+            margin-right: 0.28em;
+            opacity: 0;
+            animation: wordFadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes wordFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(6px);
+                filter: blur(8px);
+            }
+            50% {
+                opacity: 0.5;
+                filter: blur(2px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        /* Message Input Area */
+        .message-input-container {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .message-input:focus {
+            border-color: #667eea;
+            background: #fff;
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Action Buttons */
+        .action-controls {
+            padding: 16px 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn.btn-mute.active {
+            background: rgba(255, 59, 48, 0.08);
+        }
+
+        .action-btn.btn-doctor {
+            background: linear-gradient(135deg, #34C759, #30D158);
+        }
+
+        .action-btn.btn-doctor svg {
+            color: #fff;
+        }
+
+        .action-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Booking Modal */
+        .booking-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(237, 236, 238, 0.98);
+            backdrop-filter: blur(40px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .booking-modal.active {
+            display: flex;
+        }
+
+        .booking-content {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 85vh;
+            position: relative;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            animation: modalSlideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .booking-header {
+            padding: 28px 28px 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .booking-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.04);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #1d1d1f;
+            font-size: 18px;
+        }
+
+        .booking-title {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+        }
+
+        .booking-subtitle {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        /* Service Selection */
+        .booking-form {
+            padding: 24px 28px;
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        .service-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .service-item {
+            padding: 16px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            background: #fff;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .service-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .service-item.selected {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-color: #667eea;
+        }
+
+        .service-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .service-price {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .booking-confirm {
+            padding: 20px 28px 28px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .confirm-btn:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Success State */
+        .booking-success {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 28px;
+            text-align: center;
+            min-height: 400px;
+        }
+
+        .booking-success.active {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            animation: successPop 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: #fff;
+        }
+
+        /* Chat Export Modal */
+        .export-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .export-modal.active {
+            display: flex;
+        }
+
+        .export-content {
+            background: #fff;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .export-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+        }
+
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .export-btn {
+            padding: 16px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            background: #fff;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .export-btn:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-color: #667eea;
+        }
+
+        .export-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #667eea;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 0;
+        }
+
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            background: #86868b;
+            border-radius: 50%;
+            animation: typingWave 1.3s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes typingWave {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.3;
+            }
+            30% {
+                transform: translateY(-6px);
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 19px;
+            }
+
+            .start-options {
+                flex-direction: column;
+                width: 100%;
+                max-width: 280px;
+                margin: 0 auto;
+            }
+
+            .start-btn {
+                width: 100%;
+            }
+
+            .action-controls {
+                gap: 24px;
+            }
+
+            .action-btn {
+                width: 56px;
+                height: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Emergency Banner -->
+    <div class="emergency-banner" id="emergencyBanner">
+        <span>⚠️ For medical emergencies, please call 999 immediately</span>
+        <button class="emergency-btn" onclick="call999()">Call 999</button>
+        <button class="emergency-btn" onclick="hideEmergency()">Dismiss</button>
+    </div>
+
+    <!-- Main Screen -->
+    <div class="main-screen" id="mainScreen">
+        <div class="hero-content">
+            <div class="logo">THE WELLNESS LONDON</div>
+            <h1 class="hero-title">Your Health Journey Starts Here</h1>
+            <p class="hero-subtitle">AI-powered health assessment with real doctor consultations available</p>
+            <div class="start-options">
+                <button class="start-btn" onclick="startAsGuest()">
+                    Start as Guest
+                </button>
+                <button class="start-btn secondary" onclick="showAuth()">
+                    Sign In / Register
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-content">
+            <button class="auth-close" onclick="hideAuth()">×</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchTab('register')">Register</button>
+            </div>
+            
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="auth-submit">Sign In</button>
+            </form>
+            
+            <form class="auth-form" id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-input" id="registerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" required>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="gdprConsent" required>
+                    <label class="checkbox-label" for="gdprConsent">
+                        I agree to the <a href="#" onclick="showTerms()">Terms of Service</a> and 
+                        <a href="#" onclick="showPrivacy()">Privacy Policy</a>. Your data is encrypted 
+                        and handled in compliance with GDPR.
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="marketingConsent">
+                    <label class="checkbox-label" for="marketingConsent">
+                        Send me appointment reminders and health tips
+                    </label>
+                </div>
+                <button type="submit" class="auth-submit">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Call Screen -->
+    <div class="call-screen" id="callScreen">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <span class="user-info" id="userInfo">Guest User</span>
+                <span class="call-timer" id="callTimer">0:00</span>
+            </div>
+            <div class="top-bar-right">
+                <button class="top-btn" onclick="exportChat()">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Export
+                </button>
+                <button class="top-btn" onclick="showAssessment()">
+                    <svg fill="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                        <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                    </svg>
+                    Assessment
+                </button>
+                <button class="top-btn close-button" onclick="terminateCall()">×</button>
+            </div>
+        </div>
+
+        <!-- Health Assessment Panel -->
+        <div class="assessment-panel" id="assessmentPanel">
+            <h3 class="assessment-title">Quick Health Assessment</h3>
+            <p style="font-size: 14px; color: #6e6e73; margin-bottom: 16px;">
+                Select your symptoms or health concerns:
+            </p>
+            <div class="symptom-categories">
+                <button class="symptom-btn" onclick="selectSymptom('fatigue')">Fatigue</button>
+                <button class="symptom-btn" onclick="selectSymptom('weight')">Weight Issues</button>
+                <button class="symptom-btn" onclick="selectSymptom('skin')">Skin Problems</button>
+                <button class="symptom-btn" onclick="selectSymptom('hormonal')">Hormonal</button>
+                <button class="symptom-btn" onclick="selectSymptom('mental')">Mental Health</button>
+                <button class="symptom-btn" onclick="selectSymptom('pain')">Pain</button>
+                <button class="symptom-btn" onclick="selectSymptom('digestive')">Digestive</button>
+                <button class="symptom-btn" onclick="selectSymptom('sleep')">Sleep Issues</button>
+            </div>
+            <div class="severity-scale">
+                <label class="severity-label">Severity Level (1-10):</label>
+                <input type="range" class="severity-slider" id="severitySlider" min="1" max="10" value="5" onchange="updateSeverity()">
+                <div class="severity-value" id="severityValue">5</div>
+            </div>
+            <button class="confirm-btn" onclick="submitAssessment()">Get Recommendations</button>
+        </div>
+
+        <!-- Human Doctor Alert -->
+        <div class="doctor-alert" id="doctorAlert">
+            <div class="doctor-alert-text">
+                <div class="doctor-alert-title">Speak with a Real Doctor</div>
+                <div class="doctor-alert-subtitle">Get personalized medical advice - £60 consultation</div>
+            </div>
+            <button class="doctor-alert-btn" onclick="bookHumanDoctor()">Book Now</button>
+        </div>
+
+        <div class="call-main">
+            <div class="call-header">
+                <div class="caller-name">Wellness AI Assistant</div>
+                <div class="call-status" id="statusText">Connecting...</div>
+            </div>
+
+            <div class="transcript-container" id="transcriptContainer">
+                <div class="start-hint" id="startHint">Say "Hello" or type your health concern...</div>
+            </div>
+        </div>
+
+        <div class="message-input-container">
+            <input type="text" class="message-input" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()" aria-label="Send">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="action-controls">
+            <button class="action-btn btn-mute" id="muteButton" onclick="toggleMicrophone()" aria-label="Mute">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c0 3-2.55 5.1-5.91 5.1S6.09 14 6.09 11H4.41c0 3.42 2.72 6.23 6 6.72V21h1.68v-3.28c3.28-.48 6-3.3 6-6.72h-1.68z"/>
+                </svg>
+            </button>
+
+            <button class="action-btn btn-calendar" onclick="showBooking()" aria-label="Book Appointment">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                    <path d="M7 10h5v5H7z"/>
+                </svg>
+            </button>
+
+            <button class="action-btn btn-doctor" onclick="bookHumanDoctor()" aria-label="Human Doctor">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 8h-2v3h-3v2h3v3h2v-3h3v-2h-3zM4 8h9v2H4zM4 13h9v2H4zM4 18h5v2H4z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="booking-modal" id="bookingModal">
+        <div class="booking-content">
+            <div class="booking-view" id="bookingView">
+                <div class="booking-header">
+                    <button class="booking-close" onclick="hideBooking()" aria-label="Close">×</button>
+                    <h2 class="booking-title">Book Your Appointment</h2>
+                    <p class="booking-subtitle">Complete the form below</p>
+                </div>
+                
+                <form class="booking-form" id="bookingForm">
+                    <div class="form-section">
+                        <div class="section-title">Select Service</div>
+                        <div class="service-grid" id="serviceGrid">
+                            <div class="service-item" onclick="selectService('gp', this)">
+                                <div class="service-name">Private GP Consultation</div>
+                                <div class="service-price">From £45</div>
+                            </div>
+                            <div class="service-item" onclick="selectService('blood', this)">
+                                <div class="service-name">Blood Testing</div>
+                                <div class="service-price">From £400</div>
+                            </div>
+                            <div class="service-item" onclick="selectService('iv', this)">
+                                <div class="service-name">IV Therapy</div>
+                                <div class="service-price">From £295</div>
+                            </div>
+                            <div class="service-item" onclick="selectService('weight', this)">
+                                <div class="service-name">Weight Loss Program</div>
+                                <div class="service-price">From £349</div>
+                            </div>
+                            <div class="service-item" onclick="selectService('prp', this)">
+                                <div class="service-name">PRP Treatment</div>
+                                <div class="service-price">From £475</div>
+                            </div>
+                            <div class="service-item" onclick="selectService('facial', this)">
+                                <div class="service-name">Medical Facial</div>
+                                <div class="service-price">Contact for pricing</div>
+                            </div>
+                            <div class="service-item" onclick="selectService('doctor', this)" style="background: rgba(52, 199, 89, 0.05);">
+                                <div class="service-name">Human Doctor Consultation</div>
+                                <div class="service-price">£60 - Video Call</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Your Information</div>
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-input" id="bookingName" required>
+                        </div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" id="bookingEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone *</label>
+                                <input type="tel" class="form-input" id="bookingPhone" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Appointment Date & Time</div>
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label class="form-label">Date *</label>
+                                <input type="date" class="form-input" id="bookingDate" required onchange="updateBookingButton()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Time *</label>
+                                <select class="form-input" id="bookingTime" required onchange="updateBookingButton()">
+                                    <option value="">Select time</option>
+                                    <option value="08:00">8:00 AM</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="17:00">5:00 PM</option>
+                                    <option value="18:00">6:00 PM</option>
+                                    <option value="19:00">7:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label class="form-label">Additional Notes (Optional)</label>
+                            <textarea class="form-input" id="bookingNotes" rows="3" placeholder="Any specific concerns or requirements..."></textarea>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="reminderConsent" checked>
+                            <label class="checkbox-label" for="reminderConsent">
+                                Send me appointment reminders via email and SMS
+                            </label>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="booking-confirm">
+                    <button class="confirm-btn" id="confirmBtn" onclick="confirmBooking()" disabled>
+                        Complete all fields to book
+                    </button>
+                </div>
+            </div>
+            
+            <div class="booking-success" id="bookingSuccess">
+                <div class="success-icon">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
+                <h3 class="success-title">Appointment Booked!</h3>
+                <p class="success-message">Confirmation sent to your email</p>
+                <p class="success-details" id="bookingDetails"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-content">
+            <button class="auth-close" onclick="hideExport()">×</button>
+            <h2 class="export-title">Export Chat History</h2>
+            <div class="export-options">
+                <button class="export-btn" onclick="exportAsPDF()">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    Download as PDF
+                </button>
+                <button class="export-btn" onclick="exportAsText()">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    Download as Text
+                </button>
+                <button class="export-btn" onclick="emailTranscript()">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    Email to Me
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="wellness_pro.js"></script>
+</body>
+</html>
